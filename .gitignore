@@ -1,0 +1,5 @@
+*.tlog
+/src/Debug
+/src/Compiler/Debug
+/src/*.sdf
+/src/*.opensdf
