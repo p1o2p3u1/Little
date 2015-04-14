@@ -7,6 +7,9 @@
 #define LEX_STATE_FLOAT									2  // ¸¡µãÐÍ×´Ì¬
 #define LEX_STATE_IDENT									5  // ±êÊ¶·û×´Ì¬
 #define LEX_STATE_DELIMITER							7  // ·Ö¸ô·û×´Ì¬
+#define LEX_STATE_STRING									8  // ×Ö·û´®×´Ì¬
+#define LEX_STATE_STRING_ESCAPE					9	// ×Ö·û´®ÖÐµÄ×ªÒå×Ö·û×´Ì¬
+#define LEX_STATE_STRING_END							10 // ×Ö·û´®½áÊø×´Ì¬
 // ¶¨ÒåTokenÀàÐÍ
 #define TOKEN_EOF												0
 #define TOKEN_INT												1
@@ -23,6 +26,7 @@
 #define TOKEN_KEYWORD_WHILE						12
 #define TOKEN_KEYWORD_FUNC						13
 #define TOKEN_KEYWORD_RETURN					14
+
 #define TOKEN_DELIM_COLON							15    // :
 #define TOKEN_DELIM_COMMA							16    // ,    
 #define TOKEN_DELIM_OPEN_PAREN					17	// (
@@ -32,6 +36,7 @@
 #define TOKEN_DELIM_OPEN_CURLY_BRACE	21	// {
 #define TOKEN_DELIM_CLOSE_CURLY_BRACE	22	// }
 #define TOKEN_DELIM_SEMICOLON					23    // ;
+#define TOKEN_STRING										24   // ×Ö·û´®
 #ifndef TRUE
 #define TRUE 1
 #endif

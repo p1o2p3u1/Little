@@ -91,6 +91,10 @@ Token GetNextToken(){
 				iCurrentLexState = LEX_STATE_IDENT;
 			}else if(IsCharDelim(cCurrentChar)){
 				iCurrentLexState = LEX_STATE_DELIMITER;
+			}else if(cCurrentChar == '"'){
+				// 如果是字符串的开始，则进入字符状态，前引号不需要添加到Token缓冲区
+				iAddCurrentChar = FALSE;
+				iCurrentLexState = LEX_STATE_STRING;
 			}else
 			{
 				ExitOnInvalidInputError(cCurrentChar);
@@ -139,6 +143,35 @@ Token GetNextToken(){
 		case LEX_STATE_DELIMITER:
 			iAddCurrentChar = TRUE;
 			iLexemeDone = TRUE;
+			break;
+		case LEX_STATE_STRING:
+			if (cCurrentChar == '"')
+			{
+				// 字符串结束的符号不需要添加到Token缓冲区
+				iAddCurrentChar = FALSE;
+				iCurrentLexState = LEX_STATE_STRING_END;
+			}else if (cCurrentChar = '\\')
+			{
+				// 转义的斜线同样不需要添加到Token缓冲区
+				iAddCurrentChar = FALSE;
+				iCurrentLexState = LEX_STATE_STRING_ESCAPE;
+			}
+			// 其他任何字符都要添加到字符缓冲区。
+			else{
+				iAddCurrentChar = TRUE;
+				iCurrentLexState = LEX_STATE_STRING;
+			}
+			break;
+		case LEX_STATE_STRING_END:
+			// 我们已经跳过了字符串结束的双引号，此时读到的字符是双引号后一个字符
+			// 它不应该添加到Token缓冲区，好在我们在Token结束时会把索引往前移动一位
+			// 所以这个双引号后面的字符也不会丢失。
+			iAddCurrentChar = FALSE;
+			iLexemeDone = TRUE;
+			break;
+		case LEX_STATE_STRING_ESCAPE:
+			// 我们跳过了，重新跳转回string状态
+			iCurrentLexState = LEX_STATE_STRING;
 			break;
 		default:
 			break;
@@ -243,6 +276,9 @@ Token GetNextToken(){
 		default:
 			break;
 		}
+		break;
+	case LEX_STATE_STRING_END:
+		iTokenType = TOKEN_STRING;
 		break;
 	default:
 		iTokenType = TOKEN_EOF;
