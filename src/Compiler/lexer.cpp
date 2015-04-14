@@ -3,7 +3,7 @@ char* g_pstrSource;         // 存储要解析的源文件字符串
 int g_iCurrentTokenStart;  // 当前Token开始位置
 int g_iCurrentTokenEnd;    // 当前Token结束位置
 char g_pstrCurrentToken[MAX_TOKEN_SIZE];  // 当前Token的缓冲区
-
+char cDelims[MAX_DELIM_SIZE] = {',', '(', ')', '[', ']', '{', '}', ';' }; // 保存所有已知的分隔符
 void InitLexer()
 {
 	g_iCurrentTokenStart = 0;
@@ -29,6 +29,20 @@ int IsCharIdent(char c){
 	else
 		return FALSE;
 }
+
+int IsCharDelim(char cChar)
+{
+	// 与数组中的每一个元素进行比较来确定是否是一个分隔符
+	for(int i=0; i<MAX_DELIM_SIZE; i++)
+	{
+		if(cChar == cDelims[i])
+		{
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
 void ExitOnInvalidInputError(char c){
 
 }
@@ -75,6 +89,8 @@ Token GetNextToken(){
 			}else if(IsCharIdent(cCurrentChar)){
 				// 把它放在检测数字的后面，可以防止出现以数字开头的情况
 				iCurrentLexState = LEX_STATE_IDENT;
+			}else if(IsCharDelim(cCurrentChar)){
+				iCurrentLexState = LEX_STATE_DELIMITER;
 			}else
 			{
 				ExitOnInvalidInputError(cCurrentChar);
@@ -119,6 +135,10 @@ Token GetNextToken(){
 			{
 				ExitOnInvalidInputError(cCurrentChar);
 			}
+			break;
+		case LEX_STATE_DELIMITER:
+			iAddCurrentChar = TRUE;
+			iLexemeDone = TRUE;
 			break;
 		default:
 			break;
@@ -189,6 +209,39 @@ Token GetNextToken(){
 		else if (_stricmp(g_pstrCurrentToken, "while") == 0)
 		{
 			iTokenType = TOKEN_KEYWORD_WHILE;
+		}
+		break;
+	case LEX_STATE_DELIMITER:
+		switch(g_pstrCurrentToken[0]){
+		case ',':
+			iTokenType = TOKEN_DELIM_COMMA;
+			break;
+		case '(':
+			iTokenType = TOKEN_DELIM_OPEN_PAREN;
+			break;
+		case ')':
+			iTokenType = TOKEN_DELIM_CLOSE_PAREN;
+			break;
+		case '[':
+			iTokenType = TOKEN_DELIM_OPEN_BRACE;
+			break;
+		case ']':
+			iTokenType = TOKEN_DELIM_CLOSE_BRACE;
+			break;
+		case '{':
+			iTokenType = TOKEN_DELIM_OPEN_CURLY_BRACE;
+			break;
+		case '}':
+			iTokenType = TOKEN_DELIM_CLOSE_CURLY_BRACE;
+			break;
+		case ';':
+			iTokenType = TOKEN_DELIM_SEMICOLON;
+			break;
+		case ':':
+			iTokenType = TOKEN_DELIM_COLON;
+			break;
+		default:
+			break;
 		}
 		break;
 	default:
