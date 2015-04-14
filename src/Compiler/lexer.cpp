@@ -20,6 +20,15 @@ int IsCharNumeric(char c){
 	else return false;
 }
 
+int IsCharIdent(char c){
+	if ((c >='0' && c <='9') ||
+		(c >='a' && c <='z') ||
+		(c >='A' && c <='Z') ||
+		c == '_')
+		return TRUE;
+	else
+		return FALSE;
+}
 void ExitOnInvalidInputError(char c){
 
 }
@@ -63,6 +72,9 @@ Token GetNextToken(){
 			}else if(cCurrentChar = '.')
 			{
 				iCurrentLexState = LEX_STATE_FLOAT;
+			}else if(IsCharIdent(cCurrentChar)){
+				// 把它放在检测数字的后面，可以防止出现以数字开头的情况
+				iCurrentLexState = LEX_STATE_IDENT;
 			}else
 			{
 				ExitOnInvalidInputError(cCurrentChar);
@@ -96,6 +108,18 @@ Token GetNextToken(){
 			{
 				ExitOnInvalidInputError(cCurrentChar);
 			}
+			break;
+		case LEX_STATE_IDENT:
+			if(IsCharIdent(cCurrentChar)){
+				iCurrentLexState = LEX_STATE_IDENT;
+			}else if(IsCharWhiteSpace(cCurrentChar)){
+				iAddCurrentChar = FALSE;
+				iLexemeDone = TRUE;
+			}else
+			{
+				ExitOnInvalidInputError(cCurrentChar);
+			}
+			break;
 		default:
 			break;
 		}
@@ -119,6 +143,53 @@ Token GetNextToken(){
 		break;
 	case LEX_STATE_FLOAT:
 		iTokenType = TOKEN_FLOAT;
+		break;
+	case LEX_STATE_IDENT:
+		// 需要判断这个标识符是否是keywords
+		if (_stricmp(g_pstrCurrentToken, "var") == 0)
+		{
+			iTokenType = TOKEN_KEYWORD_VAR;
+		} 
+		else if (_stricmp(g_pstrCurrentToken, "true") == 0)
+		{
+			iTokenType = TOKEN_KEYWORD_TRUE;
+		}
+		else if (_stricmp(g_pstrCurrentToken, "false") == 0)
+		{
+			iTokenType = TOKEN_KEYWORD_FALSE;
+		}
+		else if (_stricmp(g_pstrCurrentToken, "for") == 0)
+		{
+			iTokenType = TOKEN_KEYWORD_FOR;
+		}
+		else if (_stricmp(g_pstrCurrentToken, "func") == 0)
+		{
+			iTokenType = TOKEN_KEYWORD_FUNC;
+		}
+		else if (_stricmp(g_pstrCurrentToken, "break") == 0)
+		{
+			iTokenType = TOKEN_KEYWORD_BREAK;
+		}
+		else if (_stricmp(g_pstrCurrentToken, "continue") == 0)
+		{
+			iTokenType = TOKEN_KEYWORD_CONTINUE;
+		}
+		else if (_stricmp(g_pstrCurrentToken, "if") == 0)
+		{
+			iTokenType = TOKEN_KEYWORD_IF;
+		}
+		else if (_stricmp(g_pstrCurrentToken, "else") == 0)
+		{
+			iTokenType = TOKEN_KEYWORD_ELSE;
+		}
+		else if (_stricmp(g_pstrCurrentToken, "return") == 0)
+		{
+			iTokenType = TOKEN_KEYWORD_RETURN;
+		}
+		else if (_stricmp(g_pstrCurrentToken, "while") == 0)
+		{
+			iTokenType = TOKEN_KEYWORD_WHILE;
+		}
 		break;
 	default:
 		iTokenType = TOKEN_EOF;
